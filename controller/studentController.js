@@ -98,40 +98,4 @@ export const getStudentsWithoutMentors = async (req, res) => {
 
 
 
-export const updateStudent = async (req, res) => {
-    try {
-        const { studentId } = req.params;
-        const { name, batch, courseName, email, mentorId } = req.body;
 
-        // Validate required fields
-        if (!name || !email || !courseName) {
-            return res.status(400).json({ message: "Name, email, and courseName are required" });
-        }
-
-        // Find the student by ID
-        const student = await Student.findById(studentId);
-        if (!student) {
-            return res.status(404).json({ message: "Student not found" });
-        }
-
-        // Check if the email is already used by another student
-        const existingStudent = await Student.findOne({ email });
-        if (existingStudent && existingStudent._id.toString() !== studentId) {
-            return res.status(409).json({ message: "Student with this email already exists" });
-        }
-
-        // Update the student fields
-        student.name = name;
-        student.batch = batch;
-        student.courseName = courseName;
-        student.email = email;
-        student.mentorId = mentorId || null; // Update mentorId if provided, otherwise set to null
-
-        // Save the updated student
-        const updatedStudent = await student.save();
-        
-        res.status(200).json({ message: "Student updated successfully", student: updatedStudent });
-    } catch (error) {
-        res.status(500).json({ message: "Error updating student", error: error.message });
-    }
-};
